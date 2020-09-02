@@ -1,24 +1,80 @@
-swagger: '2.0'
+openapi: 3.0.2
 info:
-  version: 1.0.0
-  title: タイトル
+  version: 0.0.1-SNAPSHOT
+  title: 申請書管理システム Swagger APIs
+
+tags:
+- name: AppMaster
+  description: '申請書定義マスタ'
+- name: AppFormItem
+  description: '申請書入力項目'
+
 paths:
-  '/user/{id}':
-    get:
-      description: ユーザー情報取得
+  # IF-APP-0001 申請書種類取得API
+  '/getAppDefineList':
+    post:
+      tags:
+        - AppMaster
+      summary: '申請書種類一覧取得API <IF-APP-0001>'
+      description: >-
+        申請書定義マスタから申請書種類一覧を取得<br>
+        ※表示フラグが「1」のみ対象
+      security:
+        - BearerAuth: []
       parameters:
-      - name: id
-        in: path
-        description: user id
-        required: true
-        type: number
+        - in: header
+          name: authorization
+          schema:
+            type: string
+          required: true
+          description: 'Authorizationヘッダ'
       responses:
         '200':
-          description: 成功
-          schema:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/getAppDefineListResponse'
+        '400':
+          description: '不正リクエスト'
+        '401':
+          description: '認証失敗'
+        '500':
+          description: 'サーバ内部異常'
+
+components:
+  schemas:
+    getAppDefineListResponse:
+      description: '申請書種類一覧を取得レスポンス'
+      type: object
+      properties:
+        appDefineList:
+          description: '申請書種類一覧'
+          type: array
+          items:
             type: object
             properties:
-              id:
-                type: integer
-              username:
+              appDeId:
+                description: '申請書定義ID'
+                type: number
+              appName:
+                description: '申請書名称'
+                type: string
+              appType:
+                description: '種別'
+                type: number
+              appDeadlineFlg:
+                description: '期限フラグ'
+                type: number
+              mailList:
+                description: 'メールアドレスリスト'
+                type: array
+                items:
+                  type: object
+                  properties:
+                    mail:
+                      description: 'メールアドレス'
+                      type: string
+              description:
+                description: '説明欄'
                 type: string
