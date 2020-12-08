@@ -22,6 +22,9 @@ tags:
   description: '申請書の状態変更API'
 - name: Batch
   description: 'バッチ処理API'
+- name: CreateUser
+  description: 'ユーザーを作成する'
+
 paths:
   # IF-APP-0001 申請書種類取得API
   '/mst/appDefines':
@@ -41,6 +44,7 @@ paths:
             type: string
           required: true
           description: 'Authorizationヘッダ'
+          example: 'Bearer [ID Token]'
       responses:
         '200':
           description: OK
@@ -66,7 +70,7 @@ paths:
             ※bodyは400と同様
 
   # IF-APP-0002 申請書の入力項目を取得API
-  '/mst/appFormItems/{appDeId}':
+  '/mst/appFormItems/{app_de_id}':
     get:
       tags:
         - AppFormItem
@@ -82,12 +86,14 @@ paths:
             type: string
           required: true
           description: 'Authorizationヘッダ'
+          example: 'Bearer [ID Token]'
         - in: path
-          name: appDeId
+          name: app_de_id
           schema:
             type: number
           required: true
           description: '申請書定義ID'
+          example: 1
       responses:
         '200':
           description: OK
@@ -113,7 +119,7 @@ paths:
             ※bodyは400と同様
 
   # IF-APP-0003 ユーザー一覧取得
-  '/mst/users/':
+  '/mst/users':
     get:
       tags:
         - GetUser
@@ -129,6 +135,7 @@ paths:
             type: string
           required: true
           description: 'Authorizationヘッダ'
+          example: 'Bearer [ID Token]'
       responses:
         '200':
           description: OK
@@ -152,9 +159,54 @@ paths:
             サーバ内部異常
             <br>
             ※bodyは400と同様
+   # IF-APP-0009 ユーザー登録API
+    post:
+      tags:
+        - CreateUser
+      summary: 'ユーザー登録API <IF-APP-0009>'
+      description: >-
+        ユーザーの新規登録
+      security:
+        - BearerAuth: []
+      parameters:
+        - in: header
+          name: authorization
+          schema:
+            type: string
+          required: true
+          description: 'Authorizationヘッダ'
+          example: 'Bearer [ID Token]'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postUserRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '400':
+          description: '不正リクエスト'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/errorResponse'
+        '403':
+          description: >-
+            認証失敗
+            <br>
+            ※bodyは400と同様
+        '500':
+          description: >-
+            サーバ内部異常
+            <br>
+            ※bodyは400と同様
 
   # IF-APP-0004 申請書詳細取得
-  '/apps/{appId}':
+  '/apps/{app_id}':
     get:
       tags:
         - GetApp
@@ -170,8 +222,9 @@ paths:
             type: string
           required: false
           description: 'Authorizationヘッダ'
+          example: 'Bearer [ID Token]'
         - in: query
-          name: appId
+          name: app_id
           schema:
             type: number
           required: true
@@ -216,8 +269,9 @@ paths:
             type: string
           required: true
           description: 'Authorizationヘッダ'
+          example: 'Bearer [ID Token]'
         - in: path
-          name: appId
+          name: app_id
           schema:
             type: number
           required: true
@@ -269,6 +323,7 @@ paths:
             type: string
           required: true
           description: 'Authorizationヘッダ'
+          example: 'Bearer [ID Token]'
       requestBody:
         content:
           application/json:
@@ -314,6 +369,7 @@ paths:
             type: string
           required: true
           description: 'Authorizationヘッダ'
+          example: 'Bearer [ID Token]'
         - in: query
           name: start
           schema:
@@ -329,56 +385,56 @@ paths:
           description: '取得データの件数'
           example: 10
         - in: query
-          name: requestType
+          name: request_type
           schema:
             type: number
           required: false
           description: 'リクエスト区分 (1:申請中, 2:承認依頼, 3:作業依頼, 4:否認)'
           example: 1
         - in: query
-          name: jobId
+          name: job_id
           schema:
             type: number
           required: false
           description: '部署ID'
           example: 1
         - in: query
-          name: userId
+          name: user_id
           schema:
             type: number
           required: false
           description: 'ユーザID'
           example: 1
         - in: query
-          name: dateFrom
+          name: date_from
           schema:
             type: string
           required: false
           description: '期間From'
           example: "20201001"
         - in: query
-          name: dateTo
+          name: date_to
           schema:
             type: string
           required: false
           description: '期間To'
           example: "20201031"
         - in: query
-          name: appStatus
+          name: app_status
           schema:
             type: number
           required: false
           description: 'ステータス (1:確認中, 2:否認, 3:作業中, 4:作業完了)'
           example: 1
         - in: query
-          name: appDe
+          name: app_de
           schema:
             type: string
           required: false
           description: '申請書定義ID（カンマ区切り）'
           example: "1,2"
         - in: query
-          name: displayOrder
+          name: display_order
           schema:
             type: string
           required: false
@@ -418,7 +474,7 @@ paths:
             <br>
             ※bodyは400と同様
 
-  '/apps/{appId}/status':
+  '/apps/{app_id}/status':
     # IF-APP-0008 申請書の状態変更API
     put:
       tags:
@@ -435,8 +491,9 @@ paths:
             type: string
           required: true
           description: 'Authorizationヘッダ'
+          example: 'Bearer [ID Token]'
         - in: path
-          name: appId
+          name: app_id
           schema:
             type: number
           required: true
@@ -527,34 +584,39 @@ components:
                 example: 'エラーメッセージ'
               result:
                 description: '処理結果'
-                type: string
+                type: boolean
                 example: false
               detail:
                 description: 'エラー詳細'
                 type: string
+                example: 'エラー詳細メッセージ'
     getAppDefineListResponse:
       description: '申請書種類一覧を取得レスポンス'
       type: object
       properties:
-        appDefineList:
+        app_define_list:
           description: '申請書種類一覧'
           type: array
           items:
             type: object
             properties:
-              appDeId:
+              app_de_id:
                 description: '申請書定義ID'
                 type: number
-              appName:
+                example: 1
+              app_name:
                 description: '申請書名称'
                 type: string
-              appType:
-                description: '種別'
+                example: '勤怠申請（有給休暇）'
+              app_type:
+                description: '種別 (1：承認のみ 2：承認＆作業)'
                 type: number
-              appDeadlineFlg:
-                description: '期限フラグ'
+                example: 1
+              app_deadline_flg:
+                description: '期限フラグ (0：なし1：あり)'
                 type: number
-              mailList:
+                example: 0
+              mail_list:
                 description: 'メールアドレスリスト'
                 type: array
                 items:
@@ -563,114 +625,212 @@ components:
                     mail:
                       description: 'メールアドレス'
                       type: string
+                      example: 'management@defide-ix.com'
               description:
                 description: '説明欄'
                 type: string
+                example: '勤怠申請（有給休暇）の説明'
 
     getAppFormItemListResponse:
       description: '申請書の入力項目を取得レスポンス'
       type: object
       properties:
-        formItemList:
+        form_item_list:
           description: '申請書の入力項目リスト'
           type: array
           items:
             type: object
             properties:
-              itemId:
+              item_id:
                 description: '項目定義ID'
                 type: number
-              itemName:
+              item_name:
                 description: '項目名称'
                 type: string
-              itemInputType:
-                description: '入力タイプ'
+              item_input_type:
+                description: >-
+                  入力タイプ<br>
+                  1：text<br>
+                  2：textarea<br>
+                  3：radio<br>
+                  4：checkbox<br>
+                  5：select<br>
+                  6：datetime<br>
+                  7：date<br>
+                  8：time<br>
+                  9：month<br>
+                  10：week<br>
+                  11：email<br>
+                  99：label
                 type: number
-              seqNo:
+              item_type:
+                description: '種別 (1：単一項目 2：反復項目)'
+                type: number
+              seq_no:
                 description: '項目 Seq No'
                 type: number
-              itemRequiredFlg:
-                description: '項目必須フラグ'
+              item_required_flg:
+                description: '項目必須フラグ (0：任意 1：必須)'
                 type: number
-              itemChoiceIdList:
+              item_choice_id_list:
                 description: '項目選択肢リスト'
                 type: array
                 items:
                   type: object
                   properties:
-                    itemChoiceId:
+                    item_choice_id:
                       description: '項目選択肢定義ID'
                       type: number
-                    itemChoiceName:
+                    item_choice_name:
                       description: '選択肢名称'
                       type: string
-                    itemChoiceSeqNo:
+                    item_choice_seq_no:
                       description: '項目選択肢Seq No'
                       type: number
-              childItemList:
+              child_item_list:
                 description: >-
                   子項目リスト
                 type: array
                 items:
                   type: object
                   properties:
-                    itemId:
+                    item_id:
                       description: '項目定義ID'
                       type: number
-                    itemName:
+                    item_name:
                       description: '項目名称'
                       type: string
-                    itemInputType:
+                    item_input_type:
                       description: '入力タイプ'
                       type: number
-                    seqNo:
+                    seq_no:
                       description: '項目 Seq No'
                       type: number
-                    itemRequiredFlg:
+                    item_required_flg:
                       description: '項目必須フラグ'
                       type: number
-                    itemChoiceIdList:
+                    item_choice_id_list:
                       description: '項目選択肢リスト'
                       type: array
                       items:
                         type: object
                         properties:
-                          itemChoiceId:
+                          item_choice_id:
                             description: '項目選択肢定義ID'
                             type: number
-                          itemChoiceName:
+                          item_choice_name:
                             description: '選択肢名称'
                             type: string
-                          itemChoiceSeqNo:
+                          item_choice_seq_no:
                             description: '項目選択肢Seq No'
                             type: number
+      example: 
+        {
+          "form_item_list": [
+            {
+              "item_id": 1,
+              "item_name": "期間（From）",
+              "item_input_type": 7,
+              "item_type": 1,
+              "seq_no": 1,
+              "item_required_flg": 1,
+              "item_choice_id_list": [
+              ],
+              "child_item_list": [
+              ]
+            },
+            {
+              "item_id": 2,
+              "item_name": "期間（To）",
+              "item_input_type": 7,
+              "item_type": 1,
+              "seq_no": 2,
+              "item_required_flg": 0,
+              "item_choice_id_list": [
+              ],
+              "child_item_list": [
+              ]
+            },
+            {
+              "item_id": 3,
+              "item_name": "種別",
+              "item_input_type": 3,
+              "item_type": 1,
+              "seq_no": 3,
+              "item_required_flg": 0,
+              "item_choice_id_list": [
+                {
+                  "item_choice_id": 1,
+                  "item_choice_name": "全休",
+                  "item_choice_seq_no": 1
+                },
+                {
+                  "item_choice_id": 2,
+                  "item_choice_name": "午前休",
+                  "item_choice_seq_no": 2
+                },
+                {
+                  "item_choice_id": 3,
+                  "item_choice_name": "午後休",
+                  "item_choice_seq_no": 3
+                }
+              ],
+              "child_item_list": [
+              ]
+            },
+            {
+              "item_id": 4,
+              "item_name": "休暇日数",
+              "item_input_type": 1,
+              "item_type": 1,
+              "seq_no": 4,
+              "item_required_flg": 0,
+              "item_choice_id_list": [
+              ],
+              "child_item_list": [
+              ]
+            },
+            {
+              "item_id": 5,
+              "item_name": "理由",
+              "item_input_type": 2,
+              "item_type": 1,
+              "seq_no": 5,
+              "item_required_flg": 1,
+              "item_choice_id_list": [
+              ],
+              "child_item_list": [
+              ]
+            }
+          ]
+        }
     postAppRequest:
       description: '申請書登録リクエスト'
       type: object
       properties:
-        appDeId:
+        app_de_id:
           description: '申請書定義ID'
           type: number
           example: 1111
-        resPersonId:
+        res_person_id:
           description: '担当者ID'
           type: number
           example: 101
-        itemList:
+        item_list:
           description: '項目入力値リスト'
           type: array
           items:
             type: object
             properties:
-              itemId:
+              item_id:
                 description: '項目定義ID'
                 type: number
                 example: 10
-              inputValue:
+              input_value:
                 description: '入力値 / childItemListがnullの場合は必須'
                 type: string
                 example: 'value'
-              childItemList:
+              child_item_list:
                 description: >-
                   子項目入力値リスト
                 type: array
@@ -684,45 +844,45 @@ components:
                       items:
                         type: object
                         properties:
-                          itemId:
+                          item_id:
                             description: '項目定義ID'
                             type: number
                             example: 10
-                          inputValue:
+                          input_value:
                             description: '入力値'
                             type: string
                             example: 'value'
                         required:
-                          - 'itemId'
-                          - 'inputValue'
+                          - 'item_id'
+                          - 'input_value'
             required:
-              - 'itemId'
+              - 'item_id'
       required:
-        - 'appDeId'
-        - 'resPersonId'
+        - 'app_de_id'
+        - 'res_person_id'
     putAppRequest:
       description: '申請書編集リクエスト'
       type: object
       properties:
-        resPersonId:
+        res_person_id:
           description: '担当者ID'
           type: number
           example: 101
-        itemList:
+        item_list:
           description: '項目入力値リスト'
           type: array
           items:
             type: object
             properties:
-              itemId:
+              item_id:
                 description: '項目定義ID'
                 type: number
                 example: 10
-              inputValue:
+              input_value:
                 description: '入力値 / childItemListがnullの場合は必須'
                 type: string
                 example: 'value'
-              childItemList:
+              child_item_list:
                 description: >-
                   子項目入力値リスト
                 type: array
@@ -736,27 +896,27 @@ components:
                       items:
                         type: object
                         properties:
-                          itemId:
+                          item_id:
                             description: '項目定義ID'
                             type: number
                             example: 10
-                          inputValue:
+                          input_value:
                             description: '入力値'
                             type: string
                             example: 'value'
                         required:
-                          - 'itemId'
-                          - 'inputValue'
+                          - 'item_id'
+                          - 'input_value'
             required:
-              - 'itemId'
+              - 'item_id'
       required:
-        - 'appId'
-        - 'resPersonId'
+        - 'app_id'
+        - 'res_person_id'
     putAppStatusRequest:
       description: '申請書の状態変更リクエスト'
       type: object
       properties:
-        appStatus:
+        app_status:
           description: >-
             ステータス<br>
             　承認時：1 <br>
@@ -764,7 +924,7 @@ components:
             　作業完了時：3 <br>
           type: number
           example: 1
-        resPersonId:
+        res_person_id:
           description: >-
             担当者ID<br>
             　承認時：次の担当者を設定。最終承認者の場合不要<br>
@@ -780,67 +940,67 @@ components:
           type: string
           example: '否認理由コメント'
       required:
-        - 'appId'
-        - 'appStatus'
+        - 'app_id'
+        - 'app_status'
     appListResponse:
       description: '申請書一覧取得レスポンス'
       type: object
       properties:
-        appList:
+        app_list:
           description: '申請書一覧'
           type: array
           items:
             type: object
             properties:
-              appId:
+              app_id:
                 description: '申請書ID'
                 type: number
                 example: 1
-              appDeId:
+              app_de_id:
                 description: '申請書定義ID'
                 type: number
                 example: 1
-              appName:
+              app_name:
                 description: '申請書名'
                 type: string
                 example: "勤怠申請（有給休暇）"
-              appStatus:
+              app_status:
                 description: 'ステータス (1:確認中, 2:否認, 3:作業中, 4:作業完了)'
                 type: number
                 example: 1
-              resPersonId:
+              res_person_id:
                 description: '担当者ID'
                 type: number
                 example: 98
-              resPersonName:
+              res_person_name:
                 description: '担当者名'
                 type: string
                 example: "デフィデ 次郎"
-              resPersonJobId:
+              res_person_job_id:
                 description: '担当者部署ID'
                 type: number
                 example: 1
-              resPersonJobName:
+              res_person_job_name:
                 description: '担当者部署名'
                 type: string
                 example: "経営管理部"
-              applicantId:
+              applicant_id:
                 description: '申請者ID'
                 type: number
                 example: 99
-              applicantName:
+              applicant_name:
                 description: '申請者名'
                 type: string
                 example: "デフィデ 太郎"
-              applicantJobId:
+              applicant_job_id:
                 description: '申請者部署ID'
                 type: number
                 example: 2
-              applicantJobName:
+              applicant_job_name:
                 description: '申請者部署名'
                 type: string
                 example: "営業企画部"
-              appRequestAt:
+              app_request_at:
                 description: '申請日時'
                 type: string
                 example: "2020-10-01 12:00:00"
@@ -856,54 +1016,54 @@ components:
       description: 'ユーザー一覧取得レスポンス'
       type: object
       properties:
-        jobList:
+        job_list:
           description: '部署リスト'
           type: array
           items:
             type: object
             properties:
-              jobId:
+              job_id:
                 description: '部署ID'
                 type: number
                 example: 201
-              jobName:
+              job_name:
                 description: '部署名称'
                 type: string
                 example: "システム開発部"
-              userList:
+              user_list:
                 description: 'ユーザリスト'
                 type: array
                 items:
                   type: object
                   properties:
-                    userId:
+                    user_id:
                       description:  'ユーザID'
                       type: number
                       example: 101
-                    userName:
+                    user_name:
                       description:  'ユーザ名前'
                       type: string
                       example: "デフィデ　太郎"
                   required:
-                    - 'userId'
-                    - 'userName'
+                    - 'user_id'
+                    - 'user_name'
             required:
-              - 'jobId'
-              - 'jobName'
-              - 'userList'
+              - 'job_id'
+              - 'job_name'
+              - 'user_list'
     appDetailResponse:
       description: '申請書詳細取得レスポンス'
       type: object
       properties:
-        appRequestDate:
+        app_request_date:
           description: '申請日時 【形式】YYYY/MM/DD'
           type: string
           example: '2020/01/01'
-        appUserName:
+        app_user_name:
           description: '申請者名'
           type: string
           example: 'デフィデ　太郎'
-        appUserJob:
+        app_user_job:
           description: '申請者所属部署名'
           type: string
           example: 'システム開発部'
@@ -918,21 +1078,21 @@ components:
         app:
           type: object
           properties:
-            itemList:
+            item_list:
               description: '項目入力値リスト'
               type: array
               items:
                 type: object
                 properties:
-                  itemId:
+                  item_id:
                     description: '項目定義ID'
                     type: number
                     example: 1
-                  inputValue:
+                  input_value:
                     description: '入力値'
                     type: string
                     example: '20201201'
-                  childItemList:
+                  child_item_list:
                     description: >-
                       子項目リスト
                     type: array
@@ -946,51 +1106,61 @@ components:
                           items:
                             type: object
                             properties:
-                              itemId:
+                              item_id:
                                 description: '項目定義ID'
                                 type: number
                                 example: 10
-                              inputValue:
+                              input_value:
                                 description: '入力値'
                                 type: string
                                 example: '3'
                             required:
-                              - 'itemId'
-                              - 'inputValue'
+                              - 'item_id'
+                              - 'input_value'
                 required:
-                  - 'itemId'
-                  - 'inputValue'
-        appHistoryList:
+                  - 'item_id'
+                  - 'input_value'
+        app_history_list:
           description: '申請履歴リスト'
           type: array
           items:
             description: '申請履歴'
             type: object
             properties:
-              updateTime:
+              update_time:
                 description: '更新日 【形式】YYYY/MM/DD HH:MM'
                 type: string
                 example: '2020/01/01 12:00'
-              updateUserName:
+              update_user_name:
                 description: '更新者名'
                 type: string
                 example: 'デフィデ　役員'
-              historyStatus:
+              history_status:
                 description: '申請履歴のステータス 1：確認中 2：否認 3：作業中 4：確認完了'
                 type: number
                 example: 1
-              historyReason:
+              history_reason:
                 description: '申請履歴の理由'
                 type: string
                 example: '申請'
             required:
-              - 'updateTime'
-              - 'updateUserName'
-              - 'historyStatus'
+              - 'update_time'
+              - 'update_user_name'
+              - 'history_status'
       required:
-        - 'appRequestDate'
-        - 'appUserName'
-        - 'appUserJob'
+        - 'app_request_date'
+        - 'app_user_name'
+        - 'app_user_job'
         - 'status'
         - 'app'
-        - 'appHistoryList'
+        - 'app_history_list'
+    postUserRequest:
+      description: 'ユーザー登録リクエスト'
+      type: object
+      properties:
+        access_token:
+          description: 'アクセストークン'
+          type: string
+          example: 'eyJ0eXAiOiJKV1QiLCJub25jZSI6Ii02WVAzY...'
+      required:
+        - 'access_token'        
