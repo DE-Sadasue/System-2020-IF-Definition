@@ -916,19 +916,19 @@ components:
       description: '申請書の状態変更リクエスト'
       type: object
       properties:
-        app_status:
+        app_operation:
           description: >-
-            ステータス<br>
-            　承認時：1 <br>
-            　否認時：2 <br>
-            　作業完了時：3 <br>
+            申請書の操作<br>
+            　否認：3 <br>
+            　承認：4 <br>
+            　作業完了：5 <br>
           type: number
-          example: 1
+          example: 4
         res_person_id:
           description: >-
             担当者ID<br>
-            　承認時：次の担当者を設定。最終承認者の場合不要<br>
             　否認時：不要<br>
+            　承認時：次の担当者を設定。最終承認者の場合不要<br>
             　作業完了時：不要<br>
 
           type: number
@@ -938,10 +938,9 @@ components:
             理由<br>
             　否認時のみ必須<br>
           type: string
-          example: '否認理由コメント'
+          example: '否認時のみ否認理由コメント'
       required:
-        - 'app_id'
-        - 'app_status'
+        - 'app_operation'
     appListResponse:
       description: '申請書一覧取得レスポンス'
       type: object
